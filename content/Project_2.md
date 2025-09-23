@@ -24,7 +24,7 @@ This time, the journey took me through:
 
 Along the way, I discovered two truths:  
 - Sigma is the puppet master of all things blurry.  
-- Masks are surprisingly political (hard vs. soft edges, who knew).  
+- Masks are surprisingly political (hard vs. soft edges).  
 
 ---
 
@@ -70,7 +70,7 @@ As a result the DoG filter does pick up less noise and return more defined edges
 Two options:
 - Blur then differentiate, or  
 - Differentiate the Gaussian itself and convolve once.  
-Both give nearly identical results:  
+Both give nearly **identical looking** results:  
 
 $$
 I * (D_x * G) \;\;\approx\;\; (I * G) * D_x
@@ -90,7 +90,8 @@ $$
 \theta(x,y) = \arctan\left(\frac{I_y(x,y)}{I_x(x,y)}\right)
 $$
 
-I mapped $\theta$ to hue in HSV. Result: a rainbow rave of edges.  
+I mapped $\theta$ to hue in HSV. 
+Result: The rainbow edges.  
 
 ![[1.X_comparison.png]]
 
