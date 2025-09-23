@@ -10,7 +10,6 @@ date: 2025-09-19
 permalink: /cs280A/proj2/
 draft: false
 ---
-
 # Overview
 
 If Project 1 was about seeing the world in grayscale filters, Project 2 was about teaching my eyes to separate **high-frequency gossip** (edges, details) from **low-frequency vibes** (smooth stuff).  
@@ -33,7 +32,7 @@ Along the way, I discovered two truths:
 ## 1.1 Convolutions from Scratch
 
 Four nested loops → two loops → finally checked against SciPy.  
-It worked, but I wouldn’t recommend coding it during finals week.  
+It worked, it always feels nIcE to reinvent the wheel;)
 
 
 ![[1.1_comparison.png]]
@@ -118,7 +117,7 @@ Unsharp masking:
    I_{\text{sharp}} = I + \alpha H
    $$
 
-With the right $\alpha$, the Taj Mahal looks majestic. With the wrong $\alpha$, it looks like a cursed Instagram filter.  
+With the right $\alpha$, the Taj Mahal looks majestic. With the wrong $\alpha$, the image is channelling the cheapest cellphone apparently (according to Alyosha)
 
 ![[2.1_unsharp_masking.png]]
 
@@ -133,11 +132,11 @@ Hybrid images are visual illusions:  
 Up close you see one face, far away you see another.  
 
 ![[2.2_hybrid_image_JLo_Mariah.png]]
+I also checked the Fourier transforms:  
 - **Row 2:** The Fourier transforms show us the frequency content. You can see that Mariah’s image has strong low-frequency energy concentrated tightly in the center (smooth shading, broad features), while JLo’s has more spread-out energy toward the edges, indicating richer high-frequency details (wrinkles, edges, fine textures). The hybrid’s spectrum combines both patterns.
 - **Row 3:** This makes the decomposition crystal clear. On the left, JLo’s **high-pass image** isolates her sharp features—the crisp edges around the eyes, nose, and facial lines. In the middle, Mariah’s **low-pass image** keeps her soft skin tones and broader facial structure. On the right, adding them back together reconstructs the hybrid, where depending on your viewing distance, you either see Mariah’s smooth features or JLo’s sharp details pop out.
 ![[2.2_hybrid_image_Ye_Taylor.png]]
 
-I also checked the Fourier transforms — just to confirm this was math, not witchcraft.  
 
 ---
 
