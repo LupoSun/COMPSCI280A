@@ -120,6 +120,8 @@ Unsharp masking:
 With the right $\alpha$, the Taj Mahal looks majestic. With the wrong $\alpha$, the image is channelling the cheapest cellphone apparently (according to Alyosha)
 
 ![[2.1_unsharp_masking.png]]
+![[2.1_blurNresharp.png]]
+
 
 ---
 
