@@ -74,7 +74,7 @@ I implemented **both** interpolation methods from scratch and use inverse warpin
 As my observation, both nearest neighbor and bilinear warping achieved quite good quality on my 24 megapixel images.
 
 ![[A.3.2_Comparison_Sequence.png]]
-From this image, we can see the image 1 being warped via the homography to image 2.
+From this image, we can see the image 1 being warped via the homography to match image 2.
 
 ---
 
@@ -84,7 +84,6 @@ I blend on a global canvas via **soft center-weighted alphas** and **weighted av
 
 - Canvas sizing: predicted by warping image corners through \(H\).
 - Alpha: 1 at the center, decays to 0 near borders (linear falloff).
-- Alternatives tested: 2-level Laplacian (optional; not required).
 
 Here are the results:
 ![[A.4.a_Mosaic.png]]
