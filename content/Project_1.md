@@ -2,11 +2,11 @@
 title: "Project 1: Images of the Russian Empire"
 tags:
   - CS280A
-  - Proj0
+  - Proj1
   - Computer Vision
   - Photography
 date: 2025-09-10
-permalink: /cs280A/proj1/
+permalink: /cs280A/proj2/
 draft: false
 ---
 ## Part 1 — Overview
