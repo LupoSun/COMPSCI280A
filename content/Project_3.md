@@ -1,11 +1,11 @@
 ---
-title: "Project 1: Images of the Russian Empire"
+title: "Project 3: (Auto)stitching and Photo Mosaics"
 tags:
   - CS280A
   - Proj3
   - Computer Vision
   - Photography
-date: 2025-09-10
+date: 2025-10-08
 permalink: /cs280A/proj3/
 draft: false
 ---
@@ -14,8 +14,12 @@ draft: false
 > You’ll find my correspondences, homography estimation, inverse warps (nearest & bilinear), rectification, feathered mosaics, and a cylindrical “bells & whistles” panorama below. All figures are reproducible from the accompanying notebook.
 
 ---
-
-## A.1 — Point Correspondences
+# Part A
+## A.1—Shoot and digitize pictures
+### A.1.1 Choice of Images
+I took three sets of images of the scenes in Wurster Hall for the testing materials of the project 3.
+![[A.1_formation.png]]
+### A.1.2 Point Correspondences
 
 **How I collected points.** I used a matplotlib click tool to capture matching points across images (and provided a JSON writer):
 
@@ -33,21 +37,28 @@ draft: false
 
 ## A.2 — Recover Homographies
 
-I implemented **DLT with least squares** (and Hartley normalization) to solve the overdetermined system \(Ah=b\) where \(h\) holds the 8 free parameters of \(H\) (with \(h_{33}=1\)). I used your provided function signature:
+I implemented **DLT with least squares** to solve the overdetermined system \(Ah=b\) where \(h\) holds the 8 free parameters of \(H\) (with \(h_{33}=1\)). I used your provided function signature:
 
 ```python
 H = computeH(im1_pts, im2_pts)  # maps src -> dst
 ```
 
-**Numerical sanity:** I report the mean reprojection error for each pair:
+We solve for the homography \( H \) (3×3) mapping homogeneous points $$ \mathbf{x}' \sim H\,\mathbf{x} $$
+Using DLT with least squares, we assemble an overdetermined linear system:
 
-| Pair | N pts | mean | median | max |
-|---|---:|---:|---:|---:|
-| Scene1: B→A | 12 | 0.86 px | 0.74 px | 2.43 px |
-| Scene2: C→B | 15 | 0.93 px | 0.80 px | 2.71 px |
-| Scene3: E→D | 10 | 1.12 px | 0.95 px | 3.05 px |
+$$
+A\,\mathbf{h} = \mathbf{b}, \quad 
+\mathbf{h} = \begin{bmatrix} h_{11}&h_{12}&h_{13}&h_{21}&h_{22}&h_{23}&h_{31}&h_{32} \end{bmatrix}^\top,\quad h_{33}=1.
+$$
 
-*(Computed as \(\|p' - \hat p'\|\) with \(\hat p' \sim H p\).)*
+For each correspondence $$( (x,y) \leftrightarrow (x',y') $$ :
+
+$$
+\begin{aligned}
+x' &= \frac{h_{11}x + h_{12}y + h_{13}}{h_{31}x + h_{32}y + 1},\\
+y' &= \frac{h_{21}x + h_{22}y + h_{23}}{h_{31}x + h_{32}y + 1}.
+\end{aligned}
+$$
 
 ---
 
@@ -58,12 +69,12 @@ I implemented **both** interpolation methods from scratch and use inverse warpin
 - `warpImageNearestNeighbor(im, H)`  
 - `warpImageBilinear(im, H)`
 
-**NN vs. Bilinear (qualitative):**
+**NN vs. Bilinear**:
 ![[A.3.1_Comparison_nn_bl.png]]
-
-**Rectification deliverable.** Using 4 clicked corners of a planar rectangle, I rectified to an axis-aligned box:
+As my observation, both nearest neighbor and bilinear warping achieved quite good quality on my 24 megapixel images.
 
 ![[A.3.2_Comparison_Sequence.png]]
+From this image, we can see the image 1 being warped via the homography to image 2.
 
 ---
 
@@ -75,10 +86,10 @@ I blend on a global canvas via **soft center-weighted alphas** and **weighted av
 - Alpha: 1 at the center, decays to 0 near borders (linear falloff).
 - Alternatives tested: 2-level Laplacian (optional; not required).
 
-**Example mosaics (pairwise and 3+ images):**
-
+Here are the results:
 ![[A.4.a_Mosaic.png]]
 
+**Other Eexample mosaics:**
 ![[A.4.b_Mosaic.png]]
 
 ![[A.4.c_Mosaic.png]]
@@ -91,11 +102,15 @@ I implemented cylindrical warping and stitched in cylindrical space.
 
 **Why cylindrical?** It converts horizontal camera yaw into near-translations on the cylinder, reducing perspective distortion across wide fields of view.
 
-**Mapping (source → cylinder):**
-\[
-x_c = f\,\arctan\!\Big(\frac{x-c_x}{f}\Big) + c_x,\qquad
-y_c = f \cdot \frac{y-c_y}{\sqrt{1 + \left(\frac{x-c_x}{f}\right)^2}} + c_y.
-\]
+**Mapping from image → cylinder** with focal length \( f \) (pixels) and principal point \( (c_x,c_y) \):
+
+$$
+x_c \;=\; f \,\arctan\!\Big(\frac{x-c_x}{f}\Big) + c_x, 
+\qquad
+y_c \;=\; f \cdot \frac{y-c_y}{\sqrt{1 + \left(\frac{x-c_x}{f}\right)^2}} + c_y.
+$$
+
+The images look like this when warped onto cylinders:
 
 ![[A.5.1_cylindrical_individual.png]]
 
@@ -106,24 +121,9 @@ y_c = f \cdot \frac{y-c_y}{\sqrt{1 + \left(\frac{x-c_x}{f}\right)^2}} + c_y.
 4. Estimate pairwise homographies in cylindrical space and compose to a reference.
 5. Blend on a global canvas (same feathering).
 
-**Result (cylindrical panorama):**
+**Result (cylindrical projection with difference focal lengths):**
 
 ![[A.5.3_focal_length_comparison.png]]
-
----
-
-## A.6 — Discussion
-
-**Nearest vs. Bilinear.** NN is fast but blocky; bilinear is smoother (slightly blurrier edges). Quantitatively, bilinear reduced aliasing near edges and along high-frequency textures.
-
-**Failure cases & artifacts.**
-- Mis-clicked correspondences lead to ghosting; normalization + more points help.
-- Alpha feathering can leave faint seams if exposure varies; a 2-level Laplacian helps.
-- Very wide sweeps (>180°) benefit from cylindrical projection; perspective mosaics distort.
-
-**Design choices.**
-- Kept one image as reference to reduce warp extent.
-- Used Hartley normalization in DLT for stability.
-- Chose center-falloff alphas for simple, robust blending.
+The balanced perspektive looks the best!
 
 ---
