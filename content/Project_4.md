@@ -60,6 +60,7 @@ K = [[fx,  0, cx],
   - Varying horizontal and vertical angles
   - Stable lighting (no brightness changes)
   - Sharp focus (minimal motion blur)
+
 ![[0.4_example.jpeg]]
 ![[0.2_3d_object_images_grid_3.png]]
 
