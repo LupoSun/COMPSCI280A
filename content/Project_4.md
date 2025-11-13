@@ -465,6 +465,7 @@ def volrend(sigmas, rgbs, step_size):
 ![[2.5.3_training_curves.png]]
 **Novel view synthesis GIF:**
 Rendered using provided test camera poses (`c2ws_test`):
+
 ![[2.5.2_novel_views.gif]]
 >[!tip]
 >[Download or view the GIF here](/content/static/images/proj_4/2.5.2_novel_views.gif)
