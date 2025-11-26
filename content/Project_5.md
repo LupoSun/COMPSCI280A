@@ -15,10 +15,10 @@ draft: false
 > This project explores the power of diffusion models for image generation and manipulation. I implement diffusion sampling loops, create optical illusions with visual anagrams, generate hybrid images, and perform various image editing tasks like inpainting and SDEdit. The journey goes from understanding the forward diffusion process to implementing classifier-free guidance for high-quality generation!
 
 ---
+# Part A: The Power of Diffusion Models!
+## Part 0: Setup
 
-# Part 0: Setup
-
-## Accessing DeepFloyd
+### Accessing DeepFloyd
 
 **Model.** Using DeepFloyd IF, a two-stage text-to-image diffusion model by Stability AI:
 - Stage 1: Generates 64×64 images
@@ -28,7 +28,7 @@ draft: false
 
 ---
 
-## Part 0: Playing with Pre-trained Models
+### Part 0: Playing with Pre-trained Models
 
 **Goal.** Generate images from custom text prompts to understand the model's capabilities.
 
@@ -60,7 +60,7 @@ draft: false
 25. Icon of a picture
 26. a logo with text "Cam" on it
 
-### Generated Images
+#### Generated Images
 **Random seed used:** 42
 I first generated 14 images using text embedding's randomly picked from my dictionary.
 ![[0.1.png]]
@@ -77,9 +77,9 @@ The three prompts I tested demonstrate both the capabilities and limitations of 
 
 ---
 
-# Part 1: Sampling Loops
+## Part 1: Sampling Loops
 
-## 1.1 — Implementing the Forward Process
+### 1.1 — Implementing the Forward Process
 
 **Goal.** Implement the forward diffusion process that adds noise to clean images.
 
@@ -96,7 +96,7 @@ $$x_t = \sqrt{\bar\alpha_t} x_0 + \sqrt{1 - \bar\alpha_t} \epsilon \quad \text{w
 
 ---
 
-## 1.2 — Classical Denoising
+### 1.2 — Classical Denoising
 
 **Goal.** Attempt to denoise using Gaussian blur filtering (spoiler: it doesn't work well).
 
@@ -107,7 +107,7 @@ $$x_t = \sqrt{\bar\alpha_t} x_0 + \sqrt{1 - \bar\alpha_t} \epsilon \quad \text{w
 
 ---
 
-## 1.3 — One-Step Denoising
+### 1.3 — One-Step Denoising
 
 **Goal.** Use the pretrained UNet to estimate and remove noise in a single step.
 
@@ -125,7 +125,7 @@ $$x_0 = \frac{x_t - \sqrt{1 - \bar\alpha_t} \epsilon}{\sqrt{\bar\alpha_t}}$$
 
 ---
 
-## 1.4 — Iterative Denoising
+### 1.4 — Iterative Denoising
 
 **Goal.** Implement the full iterative denoising loop with strided timesteps.
 
@@ -145,7 +145,7 @@ $$x_{t'} = \frac{\sqrt{\bar\alpha_{t'}}\beta_t}{1 - \bar\alpha_t} x_0 + \frac{\s
 
 ---
 
-## 1.5 — Diffusion Model Sampling
+### 1.5 — Diffusion Model Sampling
 
 **Goal.** Generate images from pure noise using `iterative_denoise` with `i_start=0`.
 
@@ -156,7 +156,7 @@ $$x_{t'} = \frac{\sqrt{\bar\alpha_{t'}}\beta_t}{1 - \bar\alpha_t} x_0 + \frac{\s
 
 ---
 
-## 1.6 — Classifier-Free Guidance (CFG)
+### 1.6 — Classifier-Free Guidance (CFG)
 
 **Goal.** Improve generation quality using CFG by combining conditional and unconditional noise estimates.
 
@@ -173,11 +173,11 @@ $$\epsilon = \epsilon_u + \gamma (\epsilon_c - \epsilon_u)$$
 
 ---
 
-## 1.7 — Image-to-Image Translation (SDEdit)
+### 1.7 — Image-to-Image Translation (SDEdit)
 
 **Goal.** Edit real images by adding noise and denoising with different starting points.
 
-### 1.7.0 — Editing the Campanile
+#### 1.7.0 — Editing the Campanile
 
 **Prompt:** "a high quality photo"
 
@@ -185,26 +185,26 @@ $$\epsilon = \epsilon_u + \gamma (\epsilon_c - \epsilon_u)$$
 
 ---
 
-### 1.7.1 — Editing Hand-Drawn and Web Images
+#### 1.7.1 — Editing Hand-Drawn and Web Images
 
-#### Web Image: Evangelion
+##### Web Image: Evangelion
 
 ![[1.7.1.1.png]]
 
 ---
-#### Hand-Drawn Image 1:  Mastercard inspired color
+##### Hand-Drawn Image 1:  Mastercard inspired color
 
 ![[1.7.1.2.png]]
 
 ---
 
-#### Hand-Drawn Image 2: Thin Shiba
+##### Hand-Drawn Image 2: Thin Shiba
 
 ![[1.7.1.3.png]]
 
 ---
 
-### 1.7.2 — Inpainting
+#### 1.7.2 — Inpainting
 
 **Goal.** Fill in masked regions using RePaint algorithm.
 
@@ -212,47 +212,47 @@ $$\epsilon = \epsilon_u + \gamma (\epsilon_c - \epsilon_u)$$
 
 $$x_t \leftarrow \mathbf{m} x_t + (1 - \mathbf{m}) \text{forward}(x_{orig}, t)$$
 
-#### Campanile Inpainting
+##### Campanile Inpainting
 
 ![[1.7.2.1.png]]
 
 ---
 
-#### Custom Inpainting Example 1: Wurster Hall
+##### Custom Inpainting Example 1: Wurster Hall
 
 ![[1.7.2.2.png]]
 
 ---
 
-#### Custom Inpainting Example 2: Last Supper
+##### Custom Inpainting Example 2: Last Supper
 
 ![[1.7.2.3.png]]
 
 ---
 
-### 1.7.3 — Text-Conditional Image-to-Image Translation
+#### 1.7.3 — Text-Conditional Image-to-Image Translation
 
 **Goal.** Guide SDEdit with custom text prompts instead of "a high quality photo".
 
-#### Campanile → 'a tree full of cats'
+##### Campanile → 'a tree full of cats'
 
 ![[1.7.3.1.png]]
 
 ---
 
-#### Last Supper → 'A abstract painting of deconstructivism'
+##### Last Supper → 'A abstract painting of deconstructivism'
 
 ![[1.7.3.2.png]]
 
 ---
 
-#### Bauer Wurster Hall → 'a picture of building by Zaha Hadid'
+##### Bauer Wurster Hall → 'a picture of building by Zaha Hadid'
 
 ![[1.7.3.3.png]]
 
 ---
 
-## 1.8 — Visual Anagrams
+### 1.8 — Visual Anagrams
 
 **Goal.** Create optical illusions that reveal different images when flipped upside down.
 
@@ -262,17 +262,17 @@ $$\epsilon_1 = \text{CFG-UNet}(x_t, t, p_1)$$
 $$\epsilon_2 = \text{flip}(\text{CFG-UNet}(\text{flip}(x_t), t, p_2))$$
 $$\epsilon = (\epsilon_1 + \epsilon_2) / 2$$
 
-### Visual Anagram 1
+#### Visual Anagram 1
 ![[1.8.1.png]]
 
 ---
 
-### Visual Anagram 2
+#### Visual Anagram 2
 ![[1.8.2.png]]
 
 ---
 
-## 1.9 — Hybrid Images
+### 1.9 — Hybrid Images
 
 **Goal.** Create hybrid images by combining low and high frequencies from different prompts.
 
@@ -284,25 +284,25 @@ $$\epsilon = f_{\text{lowpass}}(\epsilon_1) + f_{\text{highpass}}(\epsilon_2)$$
 
 **Filter parameters:** Gaussian blur with kernel size 33, σ = 2
 
-### Hybrid Image 1
+#### Hybrid Image 1
 
 ![[1.9.3.png]]
 
 ---
 
-### Hybrid Image 2
+#### Hybrid Image 2
 
 ![[1.9.2.png]]
 
 ---
-### Hybrid Image 3
+#### Hybrid Image 3
 
 ![[1.9.1.png]]
 
 ---
-# Part 2: Bells & Whistles
+## Part 2: Bells & Whistles
 
-## 2.1 Triple View Anagram
+### 2.1 Triple View Anagram
 
 **What I implemented:** Extended the visual anagram technique to create images that reveal three different scenes depending on the viewing angle. Instead of just upright/flipped, this creates a "triple anagram" that shows different content when:
 
@@ -323,7 +323,7 @@ $$\epsilon = (\epsilon_1 + \epsilon_2 + \epsilon_3) / 3$$
 ![[BW.1.3.png]]
 
 ---
-## 2.2 Logo Design: Image-to-image Translation
+### 2.2 Logo Design: Image-to-image Translation
 ![[BW.2.1.png]]
 ![[BW.2.2.png]]
 ![[BW.2.3.png]]
