@@ -1,7 +1,7 @@
 ---
 title: "Project 5: Fun with Diffusion Models!"
 tags:
-  - CS180
+  - CS280A
   - Proj5
   - ComputerVision
   - DiffusionModels
