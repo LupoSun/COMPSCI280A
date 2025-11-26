@@ -1,5 +1,5 @@
 ---
-title: "Project 5: Diffusion Models"
+title: "Project 5: Fun with Diffusion Models!"
 tags:
   - CS180
   - Proj5
