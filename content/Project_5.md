@@ -26,40 +26,40 @@ draft: false
 
 **Text prompt encoding.** Using provided T5 encoder clusters to generate prompt embeddings (4096-dimensional vectors).
 
+> [!tip] My text prompts:
+>1. A abstract painting of deconstructivism
+> 2. a photo a building in the style of deconstructionism
+>3. a image of the theme LUX
+>4. a photo of a firework show with the text "TAO" in the sky
+>5. a photo of a cat wearing a cape with text "CS280A" on it
+>6. a picture of building by  Zaha Hadid
+>7. an apple hybridized with an orange
+>8. EUSEXUA
+>9. a tree full of cats
+>10. Saturn merging with Mercury
+>11. a building designed by Mies van der Rohr and Zaha Hadid
+>12. a planet of boba tea
+>13. a car with low-poly design
+>14. an acrylic painting of a golden toilet
+>15. an acrylic painting of  concert
+>16. an impressionist painting of a pond
+>17. an expressionist painting of a people eating hotpot
+>18. a high quality photo
+>19. Mariah Carey
+>20. Jennifer Lopez
+>21. Kanye West
+>22. Taylor Swift
+>23. Einstein
+>24. Camera
+>25. Icon of a picture
+>26. a logo with text "Cam" on it
+
+
 ---
 
 ### Part 0: Playing with Pre-trained Models
 
 **Goal.** Generate images from custom text prompts to understand the model's capabilities.
-
-**My text prompts:**
-1. A abstract painting of deconstructivism
-2. a photo a building in the style of deconstructionism
-3. a image of the theme LUX
-4. a photo of a firework show with the text "TAO" in the sky
-5. a photo of a cat wearing a cape with text "CS280A" on it
-6. a picture of building by  Zaha Hadid
-7. an apple hybridized with an orange
-8. EUSEXUA
-9. a tree full of cats
-10. Saturn merging with Mercury
-11. a building designed by Mies van der Rohr and Zaha Hadid
-12. a planet of boba tea
-13. a car with low-poly design
-14. an acrylic painting of a golden toilet
-15. an acrylic painting of  concert
-16. an impressionist painting of a pond
-17. an expressionist painting of a people eating hotpot
-18. a high quality photo
-19. Mariah Carey
-20. Jennifer Lopez
-21. Kanye West
-22. Taylor Swift
-23. Einstein
-24. Camera
-25. Icon of a picture
-26. a logo with text "Cam" on it
-
 #### Generated Images
 **Random seed used:** 42
 I first generated 14 images using text embedding's randomly picked from my dictionary.
