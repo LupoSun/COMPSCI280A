@@ -62,6 +62,7 @@ draft: false
 **Goal.** Generate images from custom text prompts to understand the model's capabilities.
 #### Generated Images
 **Random seed used:** 42
+
 I first generated 14 images using text embedding's randomly picked from my dictionary.
 ![[0.1.png]]
 
