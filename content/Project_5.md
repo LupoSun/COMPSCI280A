@@ -329,4 +329,253 @@ $$\epsilon = (\epsilon_1 + \epsilon_2 + \epsilon_3) / 3$$
 ![[BW.2.3.png]]
 The prompt I used was "Camera". Camera is important in this class and it does have two letters in common with the "Cal" logo. I first run `forward()` on the *Cal* logo to add noise, then use the `iterative_denoise_cfg()` on multiple noise levels to get a variety of options.  The ones marked with orange are interesting.
 
+---
 
+# Part B: Flow Matching from Scratch!
+
+## Part 1: Training a Single-Step Denoising UNet
+
+### 1.1 - Implementing the UNet
+
+**Architecture:** Implemented a UNet with downsampling and upsampling blocks with skip connections. The network uses:
+- **Conv blocks**: Standard convolution with BatchNorm and GELU activation
+- **DownConv**: Downsampling by factor of 2
+- **UpConv**: Upsampling by factor of 2  
+- **Skip connections**: Concatenating features from encoder to decoder
+
+**Hidden dimension:** D = 128
+
+---
+
+### 1.2 - Using the UNet to Train a Denoiser
+
+**Training objective:** Learn to denoise images corrupted with Gaussian noise
+
+$$L = \mathbb{E}_{z,x} \|D_{\theta}(z) - x\|^2$$
+
+where $z = x + \sigma \epsilon$ and $\epsilon \sim \mathcal{N}(0, I)$
+
+Visualization of Noising Process
+
+**Different noise levels:** σ = [0.0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0]
+
+![[1.2_noising_visualization.png]]
+
+---
+
+### 1.2.1 - Training
+
+**Hyperparameters:**
+- Noise level: σ = 0.5
+- Batch size: 256
+- Learning rate: 1e-4
+- Optimizer: Adam
+- Epochs: 5
+
+#### Training Loss Curve
+
+![[1.2.1_training_loss_curve.png]]
+
+#### Denoising Results After Training
+
+**After 1st epoch:**
+
+![[1.2.1_denoising_epoch_1.png]]
+
+**After 5th epoch:**
+
+![[1.2.1_denoising_epoch_5.png]]
+
+---
+
+### 1.2.2 - Out-of-Distribution Testing
+
+**Test:** Apply the denoiser trained on σ=0.5 to images with different noise levels
+
+**Noise levels tested:** σ = [0.0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0]
+
+#### Out-of-Distribution Denoising Results
+
+![[1.2.2_ood_denoising_results.png]]
+
+---
+
+### 1.2.3 - Denoising Pure Noise
+
+**Goal:** Train denoiser to map pure Gaussian noise $\epsilon \sim \mathcal{N}(0, I)$ to clean MNIST digits
+
+#### Training Loss Curve for Pure Noise
+
+![[1.2.3_training_loss_curve.png]]
+
+#### Results Denoising Pure Noise
+
+**After 1st epoch:**
+
+![[1.2.3_denoising_epoch_1.png]]
+
+**After 5th epoch:**
+
+![[1.2.3_denoising_epoch_5.png]]
+
+**Observations and explanations:**
+Seeing averaged/blurry digits that represent the mean of the training data. With MSE loss, the model learns to predict the centroid/average of all possible training examples, which minimizes squared distance but doesn't generate realistic individual samples. The model is learning the expectation over the training distribution rather than sampling from it.
+
+---
+
+## Part 2: Training a Flow Matching Model
+
+### 2.1 - Adding Time Conditioning to UNet
+
+**Time embedding:** Implemented FCBlock (fully-connected blocks) to inject scalar timestep $t \in [0,1]$ into the UNet
+
+**Architecture modification:**
+- Two FCBlock modules for time conditioning
+- Modulation of features at two points in the decoder path
+- Time normalization to $[0,1]$ range
+
+**Forward process:**
+
+$$x_t = (1-t)x_0 + tx_1$$
+
+**Flow prediction:**
+
+$$u(x_t, t) = \frac{d}{dt} x_t = x_1 - x_0$$
+
+---
+
+### 2.2 - Training the Time-Conditioned UNet
+
+**Flow matching objective:**
+
+$$L = \mathbb{E}_{x_0 \sim p_0, x_1 \sim p_1, t \sim U[0,1]} \|(x_1-x_0) - u_\theta(x_t, t)\|^2$$
+
+**Hyperparameters:**
+- Hidden dimension: D = 64
+- Batch size: 64
+- Initial learning rate: 1e-2
+- Learning rate schedule: Exponential decay with γ = $0.1^{1/\text{num\_epochs}}$
+- Optimizer: Adam
+
+#### Training Loss Curve
+
+![[2.3_training_loss_curve.png]]
+
+---
+
+### 2.3 - Sampling from the Time-Conditioned UNet
+
+**Sampling algorithm:** Iterative denoising starting from pure noise with strided timesteps
+
+**Number of timesteps:** 50
+
+#### Deliverable: Generation Results
+
+**After 1 epoch:**
+![[2.3_time_fm_samples_epoch_1.png]]
+
+**After 5 epochs:**
+![[2.3_time_fm_samples_epoch_5.png]]
+
+**After 10 epochs:**
+![[2.3_time_fm_samples_epoch_10.png]]
+
+---
+
+### 2.4 - Adding Class-Conditioning to UNet
+
+**Class conditioning:** Extended the UNet to accept class labels as one-hot vectors
+
+**Dropout:** 10% unconditional training ($p_{\text{uncond}} = 0.1$) to enable classifier-free guidance
+
+**Architecture:**
+- Four FCBlock modules (two for time, two for class)
+- Class embeddings combined multiplicatively with time embeddings: `c * features + t`
+- One-hot encoding for digit classes 0-9
+
+**Modified forward:**
+```python
+unflatten = c1 * unflatten + t1
+up1 = c2 * up1 + t2
+```
+
+---
+
+### 2.5 - Training the Class-Conditioned UNet
+
+**Training objective:** Same as time-only, but with class conditioning and periodic dropout
+
+**Hyperparameters:**
+- Hidden dimension: D = 64
+- Batch size: 64
+- Initial learning rate: 1e-2
+- Learning rate schedule: Exponential decay
+- Unconditional probability: p_uncond = 0.1
+- Epochs: 10
+
+#### Training Loss Curve
+![[2.6_training_loss_curve.png]]
+
+---
+
+### 2.6 - Sampling from the Class-Conditioned UNet
+
+**Sampling method:** Classifier-free guidance with scale γ = 5.0
+
+**CFG formula:**
+
+$$\epsilon = \epsilon_u + \gamma (\epsilon_c - \epsilon_u)$$
+
+#### Deliverable: Generation Results with Class Conditioning
+
+**After 1 epoch:**
+![[2.6_time_fm_samples_epoch_1.png]]
+
+**After 5 epochs:**
+![[2.6_time_fm_samples_epoch_5.png]]
+
+**After 10 epochs:**
+![[2.6_time_fm_samples_epoch_10.png]]
+
+---
+
+### 2.6.1 - Training Without Learning Rate Scheduler
+
+**Challenge:** Maintain performance without exponential learning rate decay
+
+> [!tip] My Approach
+> In the original implementation I used an exponential learning rate scheduler that decayed the learning rate from 1×10⁻² to 1×10⁻³ over training. For the challenge, I removed the scheduler and instead used a fixed learning rate.
+> To compensate for the loss of the scheduler, I chose a constant learning rate of 3×10⁻³, which roughly matches the effective average learning rate of the original schedule (geometric mean of 1×10⁻² and 1×10⁻³), while increasing the dimension of the hidden layers from 64 to 128
+> With this fixed learning rate setup, the final training loss and qualitative sample quality are comparable to the scheduler-based run. 
+#### Results Without Scheduler
+![[2.6.1_time_fm_samples_no_scheduler_1.png]]
+![[2.6.1_time_fm_samples_no_scheduler_5.png]]
+![[2.6.1_time_fm_samples_no_scheduler_10.png]]
+
+---
+
+## Part 3: Bells & Whistles
+
+### 3.1 - Better Time-Conditioned UNet (CS280A Required)
+
+**Goal:** Improve the time-conditioned only UNet from Part 2.3 to match the quality of the class-conditioned version
+
+#### Improvements Made
+
+> [!tip] My Approach
+> To improve the time-conditioned-only UNet, we increased the base number of channels from 64 to 128 (making the network more expressive) and extended training from 10 to 40 epochs with an exponentially decaying learning rate (from 3×10⁻³ down to 3×10⁻⁴). Compared to the original time-only model, the improved model produces sharper digits with fewer artifacts and more consistent shapes, closing much of the gap to the class-conditioned UNet.
+
+#### Improved Results
+GIF:
+![[BW.gif]]
+
+Frames:
+![[BW_time_fm_samples_epoch_1.png]]
+![[BW_time_fm_samples_epoch_5.png]]
+![[BW_time_fm_samples_epoch_10.png]]
+![[BW_time_fm_samples_epoch_15.png]]
+![[BW_time_fm_samples_epoch_20.png]]
+![[BW_time_fm_samples_epoch_25.png]]
+![[BW_time_fm_samples_epoch_30.png]]
+![[BW_time_fm_samples_epoch_35.png]]
+![[BW_time_fm_samples_epoch_40.png]]
