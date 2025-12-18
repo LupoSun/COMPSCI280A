@@ -12,7 +12,7 @@ draft: false
 ---
 
 > 📌 **TL;DR**  
-> This project explores the full spectrum of diffusion-based generative models for image generation and manipulation. Part A demonstrates the power of pre-trained diffusion models (DeepFloyd IF) through sampling, editing techniques like SDEdit and inpainting, and creative applications including visual anagrams and hybrid images. Part B takes a deeper dive by implementing a flow matching model from scratch on MNIST, progressing from single-step denoising to time-conditioned and class-conditioned generation with classifier-free guidance. Together, these parts showcase both the practical applications of modern diffusion models and the mathematical foundations that make them work!
+> This project explores the power of diffusion models for image generation and manipulation. I implement diffusion sampling loops, create optical illusions with visual anagrams, generate hybrid images, and perform various image editing tasks like inpainting and SDEdit. The journey goes from understanding the forward diffusion process to implementing classifier-free guidance for high-quality generation!
 
 ---
 # Part A: The Power of Diffusion Models!
